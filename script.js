@@ -1,50 +1,44 @@
 // script.js
 
-// Grab references to DOM elements
+// Grab DOM elements
 const productNameInput = document.getElementById('product-name');
 const productPriceInput = document.getElementById('product-price');
 const addProductButton = document.getElementById('add-product');
 const cartList = document.getElementById('cart');
 const totalPriceSpan = document.getElementById('total-price');
 
-// Keep track of the total price
-let totalPrice = 0;
-
-/**
- * updateTotalPrice
- * Adjusts the total by `amount` and updates the display.
- * @param {number} amount — positive to add, negative to subtract
- */
-function updateTotalPrice(amount) {
-  totalPrice += amount;
-  // Always show two decimal places
-  totalPriceSpan.textContent = totalPrice.toFixed(2);
+// Function to recalculate total by summing (unitPrice * quantity) for each item
+function recalcTotal() {
+  let sum = 0;
+  // Loop through all cart items
+  cartList.querySelectorAll('.cart-item').forEach(itemLi => {
+    const unitPrice = parseFloat(itemLi.dataset.price);
+    const qty = parseInt(itemLi.querySelector('.qty-input').value);
+    sum += unitPrice * qty;
+  });
+  // Update display
+  totalPriceSpan.textContent = sum.toFixed(2);
 }
 
 /**
- * removeItem
- * Handles click on a remove button: finds the price, deducts it, and removes the <li>.
+ * removeItem(event)
+ * Removes the <li> and updates the total.
  */
 function removeItem(event) {
-  // `closest('li')` finds the parent <li> of the clicked button
   const itemLi = event.target.closest('li');
-  // Read the stored price
-  const price = parseFloat(itemLi.dataset.price);
-  // Subtract from total and update
-  updateTotalPrice(-price);
-  // Remove the item from the DOM
   itemLi.remove();
+  recalcTotal();
 }
 
 /**
- * addProductToCart
- * Creates a new <li> with the product name, price, and a Remove button.
+ * addProductToCart()
+ * Validates inputs, builds a cart item with name, unit price, quantity, and remove button.
  */
 function addProductToCart() {
   const name = productNameInput.value.trim();
   const price = parseFloat(productPriceInput.value);
 
-  // Validate inputs
+  // Validation
   if (!name) {
     alert('Please enter a product name.');
     return;
@@ -54,34 +48,43 @@ function addProductToCart() {
     return;
   }
 
-  // Create the <li> element
+  // Create list item
   const li = document.createElement('li');
   li.className = 'cart-item';
-  // Store the price in a data-attribute for easy retrieval on remove
-  li.dataset.price = price;
+  li.dataset.price = price; // store unit price
 
-  // Create a <span> to hold "Name — $Price"
+  // Product name & unit price text
   const textSpan = document.createElement('span');
   textSpan.textContent = `${name} — $${price.toFixed(2)}`;
   li.appendChild(textSpan);
 
-  // Create the Remove button
+  // Quantity input
+  const qtyInput = document.createElement('input');
+  qtyInput.type = 'number';
+  qtyInput.min = '1';
+  qtyInput.value = '1';
+  qtyInput.className = 'qty-input';
+  // On change, recalculate total
+  qtyInput.addEventListener('change', () => {
+    if (qtyInput.value < 1) qtyInput.value = 1; // enforce minimum
+    recalcTotal();
+  });
+  li.appendChild(qtyInput);
+
+  // Remove button
   const removeBtn = document.createElement('button');
   removeBtn.textContent = 'Remove';
-  // Attach click handler
   removeBtn.addEventListener('click', removeItem);
   li.appendChild(removeBtn);
 
-  // Append the new item to the cart list
+  // Add to cart and recalc total
   cartList.appendChild(li);
+  recalcTotal();
 
-  // Update total price
-  updateTotalPrice(price);
-
-  // Clear inputs for the next product
+  // Clear inputs
   productNameInput.value = '';
   productPriceInput.value = '';
 }
 
-// Attach our add-function to the "Add Product" button
+// Wire up Add Product button
 addProductButton.addEventListener('click', addProductToCart);
