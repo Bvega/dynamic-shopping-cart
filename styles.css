@@ -1,0 +1,51 @@
+/* styles.css */
+
+/* Base font and spacing */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  line-height: 1.6;
+}
+
+/* Layout for inputs and button */
+#product-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Remove default bullets and padding */
+#cart {
+  list-style: none;
+  padding: 0;
+}
+
+/* Each cart item is a flex row */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+/* Make the name/price text take available space */
+.cart-item span {
+  flex: 1;
+}
+
+/* Style remove buttons */
+.cart-item button {
+  margin-left: 10px;
+  background: transparent;
+  border: 1px solid #c00;
+  color: #c00;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.cart-item button:hover {
+  background: #c00;
+  color: #fff;
+}
